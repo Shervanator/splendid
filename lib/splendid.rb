@@ -15,26 +15,34 @@ class Splendid
   end
 
   def looks_good?
-    to_image(uri_html)
+    # proxy = Proxy.new(@url_string)
+    # thr = Thread.new { proxy.start }
+    to_image('http://localhost:12345')
+    thr.join
   end
 
   private
 
-  def to_image(html)
-    kit = IMGKit.new(html)
-
-    Dir.mktmpdir do |temp_dir|
-      css_files(temp_dir).each do |css_file|
-        kit.stylesheets << css_file
-      end
-
-      kit.to_file './test.png'
-    end
+  def to_image(url)
+    kit = IMGKit.new(url)
+    kit.to_file './test.png'
   end
 
-  def uri_html
-    @uri_html ||= Net::HTTP.get(uri)
-  end
+  # def to_image(html)
+  #   kit = IMGKit.new(html)
+
+  #   Dir.mktmpdir do |temp_dir|
+  #     css_files(temp_dir).each do |css_file|
+  #       kit.stylesheets << css_file
+  #     end
+
+  #     kit.to_file './test.png'
+  #   end
+  # end
+
+  # def uri_html
+  #   @uri_html ||= Net::HTTP.get(uri)
+  # end
 
   def css_files(dir)
     doc = Nokogiri::HTML(uri_html)
