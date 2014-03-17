@@ -4,61 +4,42 @@ require 'nokogiri'
 require 'tmpdir'
 require 'pathname'
 require "splendid/version"
+require 'digest/md5'
 
 class Splendid
-  def self.looks_good?(url_string)
-    new(url_string).looks_good?
+  def self.looks_good?(uri)
+    new(uri).looks_good?
   end
 
-  def initialize(url_string)
-    @url_string = url_string
+  def self.create_good_copy(uri)
+    new(uri).create_good_copy
+  end
+
+  def initialize(uri)
+    @uri = uri
   end
 
   def looks_good?
-    # proxy = Proxy.new(@url_string)
-    # thr = Thread.new { proxy.start }
-    to_image('http://localhost:12345')
-    thr.join
+    test_img = to_image(@uri).to_img(:png)
+    ImageCompare.compare(test_img, good_copy_img) < 0.1
+  end
+
+  def create_good_copy
+    img = to_image(@uri)
+    img.to_file("tmp/#{file_name}")
+  end
+
+  def good_copy_img
+    File.read("tmp/#{file_name}")
   end
 
   private
 
   def to_image(url)
-    kit = IMGKit.new(url)
-    kit.to_file './test.png'
+    IMGKit.new(url, :"disable-javascript" => true, :quality => 5, :zoom => 0.4, :width => 500, :height => 1000)
   end
 
-  # def to_image(html)
-  #   kit = IMGKit.new(html)
-
-  #   Dir.mktmpdir do |temp_dir|
-  #     css_files(temp_dir).each do |css_file|
-  #       kit.stylesheets << css_file
-  #     end
-
-  #     kit.to_file './test.png'
-  #   end
-  # end
-
-  # def uri_html
-  #   @uri_html ||= Net::HTTP.get(uri)
-  # end
-
-  def css_files(dir)
-    doc = Nokogiri::HTML(uri_html)
-    doc.css('link[href$=".css"]').map do |elem|
-      file = Pathname.new(elem.attributes["href"].value).basename
-      path = "#{dir}/#{file}"
-      
-      File.open path, 'w' do |f|
-        f.write Net::HTTP.get(URI("http:#{elem.attributes["href"].value}"))
-      end
-
-      path
-    end
-  end
-
-  def uri
-    @uri ||= URI(@url_string)
+  def file_name
+    "splendid_#{Digest::MD5.hexdigest(@uri)}.png"
   end
 end
