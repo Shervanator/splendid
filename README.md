@@ -1,5 +1,7 @@
 # Splendid
 
+[![Gem Version](https://badge.fury.io/rb/splendid.png)](http://badge.fury.io/rb/splendid)
+
 Want to test if a webpage looks as expected? Use splendid in your tests to make sure styles are not broken on your site!
 
 ## Installation
