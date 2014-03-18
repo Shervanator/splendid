@@ -1,6 +1,6 @@
 # Splendid
 
-TODO: Write a gem description
+Want to test if a webpage looks as expected? Use splendid in your tests to make sure styles are not broken on your site!
 
 ## Installation
 
@@ -18,7 +18,7 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+TODO: Instruction coming soon, API will possibly change quite a bit soon as it is very early in development.
 
 ## Contributing
 
