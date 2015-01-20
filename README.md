@@ -20,7 +20,13 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Instruction coming soon, API will possibly change quite a bit soon as it is very early in development.
+TODO: More instruction coming soon, API will possibly change quite a bit soon as it is very early in development.
+
+In your rspec capybara tests use the following matcher
+```
+expect(page).to be_splendid
+```
+This will on first run learn what your page looks like, then on subsequent runs will diff news versions of the page to that.
 
 ## Contributing
 

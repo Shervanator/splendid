@@ -1,45 +1,50 @@
-require 'net/http'
-require 'imgkit'
-require 'nokogiri'
-require 'tmpdir'
-require 'pathname'
+require "splendid/image_compare"
 require "splendid/version"
 require 'digest/md5'
+require 'fileutils'
+
+module Capybara
+  class Session
+    def splendid?
+      Dir.mktmpdir do |dir|
+        path = "#{dir}/page.png"
+        save_screenshot(path, :full => true)
+
+        Splendid.new(current_host + current_path).looks_good?(path)
+      end
+    end
+  end
+end
+
 
 class Splendid
-  def self.looks_good?(uri)
-    new(uri).looks_good?
+  def initialize(key)
+    @key = hash(key)
   end
 
-  def self.create_good_copy(uri)
-    new(uri).create_good_copy
-  end
-
-  def initialize(uri)
-    @uri = uri
-  end
-
-  def looks_good?
-    test_img = to_image(@uri).to_img(:png)
-    ImageCompare.compare(test_img, good_copy_img) < 0.1
-  end
-
-  def create_good_copy
-    img = to_image(@uri)
-    img.to_file("tmp/#{file_name}")
-  end
-
-  def good_copy_img
-    File.read("tmp/#{file_name}")
+  def looks_good?(image_path)
+    if File.exist?(file_name)
+      looks_the_same?(image_path, file_name)
+    else
+      FileUtils.mv(image_path, file_name)
+      true
+    end
   end
 
   private
 
-  def to_image(url)
-    IMGKit.new(url, :"disable-javascript" => true, :quality => 5, :zoom => 0.4, :width => 500, :height => 1000)
+  def looks_the_same?(img_path_a, img_path_b)
+    img_a = File.open(img_path_a, 'rb').read
+    img_b = File.open(img_path_b, 'rb').read
+
+    Splendid::ImageCompare.compare(img_a, img_b) <= 0.001
+  end
+
+  def hash(text)
+    Digest::MD5.hexdigest(text)
   end
 
   def file_name
-    "splendid_#{Digest::MD5.hexdigest(@uri)}.png"
+    "splendid_#{@key}.png"
   end
 end
