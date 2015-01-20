@@ -1,6 +1,6 @@
 require 'chunky_png'
 
-class ImageCompare
+class Splendid::ImageCompare
   def self.compare(test_img_blob, good_img_blob)
     new(test_img_blob, good_img_blob).compare
   end
@@ -30,6 +30,7 @@ class ImageCompare
 
       test_img.rect(x.min, y.min, x.max, y.max, ChunkyPNG::Color.rgb(0,255,0))
       test_img.save('diff.png')
+      puts "DIFF FOUND: view here: diff.png"
     end
 
     changed_percent
